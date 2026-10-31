@@ -460,12 +460,8 @@ dialog#image-modal::backdrop{
 
 /* Mobile slide adjustments */
 @media (max-width: 767px) {
-
-  /* All slides share the same height (the tallest one, i.e. slide 1) */
   .carousel-slide { display: flex; }
   .slide-card { height: auto; flex: 1 1 auto; }
-
-  /* Image slides: tighter, readable text block at the bottom */
   .slide-overlay {
     padding: 18px 16px 20px;
     background: linear-gradient(to top, rgba(12,9,6,0.97) 0%, rgba(12,9,6,0.75) 45%, rgba(12,9,6,0.1) 80%, transparent 100%);
@@ -478,7 +474,7 @@ dialog#image-modal::backdrop{
   }
   .slide-desc {
     font-size: 0.85rem;
-    line-height: 1.7; /* extra room for Malayalam script */
+    line-height: 1.7;
     margin-bottom: 14px;
     max-width: 100%;
   }
@@ -568,9 +564,7 @@ dialog#image-modal::backdrop{
           <!-- Slide 1: Main Brand Hero with Floating Particle Dots & Logo Stage -->
           <div class="carousel-slide">
             <div class="slide-card brand-hero-card">
-              <!-- Animated Floating Particle Dots Canvas -->
               <canvas id="hero-canvas"></canvas>
-              
               <div class="hero-stage-content">
                 <div class="logo-stage" id="logo-stage">
                   <img src="logo.jpg" alt="KLM Esports logo">
@@ -648,7 +642,6 @@ dialog#image-modal::backdrop{
         </div>
       </div>
 
-      <!-- Pagination Dots -->
       <div class="carousel-dots" id="carouselDots"></div>
     </div>
   </section>
@@ -1007,6 +1000,7 @@ function render() {
 }
 
 function parseCSV(text) {
+  // Quotes-നുള്ളിൽ അബദ്ധത്തിൽ വന്ന ലൈൻ ബ്രേക്കുകൾ കാരണമുണ്ടാകുന്ന ലൈൻ സ്പ്ലിറ്റിംഗ് തടയുന്നു
   const lines = text.trim().split(/\r\n|\n/);
   if (lines.length < 2) return [];
 
@@ -1038,30 +1032,50 @@ function parseCSV(text) {
   const rows = [];
 
   for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    const values = splitLine(lines[i]);
+    const rawLine = lines[i].trim();
+    if (!rawLine) continue;
+    
+    const values = splitLine(rawLine);
     const obj = {};
     headers.forEach((h, idx) => {
       obj[h] = values[idx] || '';
     });
 
+    // ടൈറ്റിലോ തീയതിയോ ഇല്ലാത്ത വ്യാജ കാർഡുകളെ തടയുന്നു
+    const rawTitle = (obj.title || obj.tournament || obj.name || '').replace(/^[,\s"]+|[,\s"]+$/g, '').trim();
+    const rawDate = (obj.date || obj.matchdate || '').replace(/^[,\s"]+|[,\s"]+$/g, '').trim();
+    
+    // ടൈറ്റിലോ ഡേറ്റോ ഇല്ലെങ്കിൽ ഇത് ഷീറ്റിൽ തെറ്റായി വന്ന ലൈൻ ആണ്, ഒഴിവാക്കാം
+    if (!rawTitle || !rawDate) {
+      continue;
+    }
+
+    let rawImg = obj.image || obj.thumbnail || obj.imageurl || "1000193608.webp";
+    rawImg = rawImg.replace(/^[,\s"]+|[,\s"]+$/g, '').trim();
+    
+    // ഡ്രൈവ് ഷെയറിംഗ് ലിങ്കുകൾ നേരിട്ട് വന്നാൽ തനിയെ വെബ് ഇമേജ് ലിങ്കാക്കി മാറ്റുന്നു
+    if (rawImg.includes("drive.google.com")) {
+      const driveMatch = rawImg.match(/[-\w]{25,}/);
+      if (driveMatch) {
+        rawImg = `https://lh3.googleusercontent.com/d/${driveMatch[0]}`;
+      }
+    }
+
     const tournament = {
-      game: obj.game || obj.gamename || "BGMI",
-      title: obj.title || obj.tournament || obj.name || "Match",
-      entry: obj.entry || obj.entryfee || "FREE ENTRY",
-      date: obj.date || obj.matchdate || "",
-      time: obj.time || obj.matchtime || "",
-      image: obj.image || obj.thumbnail || obj.imageurl || "1000193608.webp",
-      mapBadge: obj.mapbadge || obj.map || obj.badge || "",
-      detailsUrl: obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || obj.slotlisturl || obj.slotlist || "",
-      slotListUrl: obj.slotlisturl || obj.slotlist || obj.slots || "",
-      registerUrl: obj.registerurl || obj.register || obj.registration || obj.bookslot || obj.bookyourslot || obj.registerhtml || "",
-      resultUrl: obj.resulturl || obj.result || ""
+      game: (obj.game || obj.gamename || "BGMI").replace(/^[,\s"]+|[,\s"]+$/g, '') || "BGMI",
+      title: rawTitle,
+      entry: (obj.entry || obj.entryfee || "FREE ENTRY").replace(/^[,\s"]+|[,\s"]+$/g, '') || "FREE ENTRY",
+      date: rawDate,
+      time: (obj.time || obj.matchtime || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
+      image: rawImg,
+      mapBadge: (obj.mapbadge || obj.map || obj.badge || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
+      detailsUrl: (obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || obj.slotlisturl || obj.slotlist || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
+      slotListUrl: (obj.slotlisturl || obj.slotlist || obj.slots || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
+      registerUrl: (obj.registerurl || obj.register || obj.registration || obj.bookslot || obj.bookyourslot || obj.registerhtml || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
+      resultUrl: (obj.resulturl || obj.result || "").replace(/^[,\s"]+|[,\s"]+$/g, '')
     };
 
-    if (tournament.date || tournament.title) {
-      rows.push(tournament);
-    }
+    rows.push(tournament);
   }
   return rows;
 }
