@@ -689,7 +689,6 @@ dialog#image-modal::backdrop{
     font-size: 1.05rem;
   }
   
-  /* Desktop layout for History List (Consistent with Upcoming Tournaments) */
   #history-list {
     display: flex;
     overflow-x: auto;
@@ -698,7 +697,6 @@ dialog#image-modal::backdrop{
     flex: 0 0 min(82%, 320px);
   }
 
-  /* History Modal: Exactly 3 items per row scrolling vertically */
   .history-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
@@ -733,7 +731,7 @@ dialog#image-modal::backdrop{
       <div class="carousel-viewport" id="carouselViewport">
         <div class="carousel-track" id="carouselTrack">
           
-          <!-- Slide 1: Main Brand Hero with Floating Particle Dots & Logo Stage -->
+          <!-- Slide 1: Main Brand Hero -->
           <div class="carousel-slide">
             <div class="slide-card brand-hero-card">
               <canvas id="hero-canvas"></canvas>
@@ -1050,10 +1048,10 @@ if (intro) {
   }
 })();
 
-// Google Sheets Live Data Sources
+// Google Sheets GViz API JSON Endpoints
 const SHEET_URLS = [
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/pub?gid=972107976&single=true&output=csv",
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/pub?gid=582137958&single=true&output=csv"
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/gviz/tq?tqx=out:json&gid=972107976",
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/gviz/tq?tqx=out:json&gid=582137958"
 ];
 
 const fallbackTournaments = [
@@ -1271,14 +1269,13 @@ function render() {
   // Render Upcoming Tournaments
   list.replaceChildren(...upcoming.map(t => buildCard(t, false)));
   
-  // Render Tournament History (Display preview on main page with normal card size)
+  // Render Tournament History
   const previewPast = allPastTournaments.slice(0, 4);
   histList.replaceChildren(...previewPast.map(t => buildCard(t, true)));
   
   empty.hidden = upcoming.length > 0;
   histEmpty.hidden = allPastTournaments.length > 0;
 
-  // Show "View More" button only if there are past tournaments
   if (allPastTournaments.length > 0) {
     historyControls.hidden = false;
     btnViewAllHistory.innerHTML = `<span>View All History (${allPastTournaments.length})</span> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
@@ -1286,7 +1283,6 @@ function render() {
     historyControls.hidden = true;
   }
 
-  // Setup auto-scroll for upcoming tournaments
   setupUpcomingAutoScroll();
 
   clearTimeout(timer);
@@ -1295,81 +1291,64 @@ function render() {
   }
 }
 
-function parseCSV(text) {
-  const lines = text.trim().split(/\r\n|\n/);
-  if (lines.length < 2) return [];
+// Parse Google Visualization JSON Format accurately cell-by-cell
+function parseGVizData(rawText) {
+  try {
+    const jsonString = rawText.substring(rawText.indexOf('{'), rawText.lastIndexOf('}') + 1);
+    const data = JSON.parse(jsonString);
+    if (!data.table || !data.table.rows) return [];
 
-  function splitLine(line) {
-    const res = [];
-    let cur = '', inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          cur += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
+    const cols = data.table.cols.map(c => (c.label || c.id || '').toLowerCase().replace(/[^a-z0-9]/g, ''));
+    const rows = [];
+
+    data.table.rows.forEach(r => {
+      if (!r.c) return;
+      const obj = {};
+      r.c.forEach((cell, idx) => {
+        const colName = cols[idx] || `col_${idx}`;
+        let val = '';
+        if (cell && cell.v !== null && cell.v !== undefined) {
+          val = String(cell.f || cell.v).trim();
         }
-      } else if (c === ',' && !inQuotes) {
-        res.push(cur.trim());
-        cur = '';
-      } else {
-        cur += c;
+        obj[colName] = val;
+      });
+
+      const rawTitle = (obj.title || obj.tournament || obj.name || '').trim();
+      const rawDate = (obj.date || obj.matchdate || '').trim();
+
+      if (!rawTitle || !rawDate) return;
+
+      let rawImg = obj.image || obj.thumbnail || obj.imageurl || "1000193608.webp";
+      rawImg = rawImg.trim();
+
+      // Convert Google Drive view/share link directly to loadable image CDN URL
+      if (rawImg.includes("drive.google.com")) {
+        const driveMatch = rawImg.match(/[-\w]{25,}/);
+        if (driveMatch) {
+          rawImg = `https://lh3.googleusercontent.com/d/${driveMatch[0]}`;
+        }
       }
-    }
-    res.push(cur.trim());
-    return res;
-  }
 
-  const rawHeaders = splitLine(lines[0]);
-  const headers = rawHeaders.map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
-  const rows = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const rawLine = lines[i].trim();
-    if (!rawLine) continue;
-    
-    const values = splitLine(rawLine);
-    const obj = {};
-    headers.forEach((h, idx) => {
-      obj[h] = values[idx] || '';
+      rows.push({
+        game: (obj.game || obj.gamename || "BGMI").trim() || "BGMI",
+        title: rawTitle,
+        entry: (obj.entry || obj.entryfee || "FREE ENTRY").trim() || "FREE ENTRY",
+        date: rawDate,
+        time: (obj.time || obj.matchtime || "").trim(),
+        image: rawImg,
+        mapBadge: (obj.mapbadge || obj.map || obj.badge || "").trim(),
+        detailsUrl: (obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || obj.slotlisturl || obj.slotlist || "").trim(),
+        slotListUrl: (obj.slotlisturl || obj.slotlist || obj.slots || "").trim(),
+        registerUrl: (obj.registerurl || obj.register || obj.registration || obj.bookslot || obj.bookyourslot || obj.registerhtml || "").trim(),
+        resultUrl: (obj.resulturl || obj.result || "").trim()
+      });
     });
 
-    const rawTitle = (obj.title || obj.tournament || obj.name || '').replace(/^[,\s"]+|[,\s"]+$/g, '').trim();
-    const rawDate = (obj.date || obj.matchdate || '').replace(/^[,\s"]+|[,\s"]+$/g, '').trim();
-    
-    if (!rawTitle || !rawDate) {
-      continue;
-    }
-
-    let rawImg = obj.image || obj.thumbnail || obj.imageurl || "1000193608.webp";
-    rawImg = rawImg.replace(/^[,\s"]+|[,\s"]+$/g, '').trim();
-    
-    if (rawImg.includes("drive.google.com")) {
-      const driveMatch = rawImg.match(/[-\w]{25,}/);
-      if (driveMatch) {
-        rawImg = `https://lh3.googleusercontent.com/d/${driveMatch[0]}`;
-      }
-    }
-
-    const tournament = {
-      game: (obj.game || obj.gamename || "BGMI").replace(/^[,\s"]+|[,\s"]+$/g, '') || "BGMI",
-      title: rawTitle,
-      entry: (obj.entry || obj.entryfee || "FREE ENTRY").replace(/^[,\s"]+|[,\s"]+$/g, '') || "FREE ENTRY",
-      date: rawDate,
-      time: (obj.time || obj.matchtime || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
-      image: rawImg,
-      mapBadge: (obj.mapbadge || obj.map || obj.badge || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
-      detailsUrl: (obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || obj.slotlisturl || obj.slotlist || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
-      slotListUrl: (obj.slotlisturl || obj.slotlist || obj.slots || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
-      registerUrl: (obj.registerurl || obj.register || obj.registration || obj.bookslot || obj.bookyourslot || obj.registerhtml || "").replace(/^[,\s"]+|[,\s"]+$/g, ''),
-      resultUrl: (obj.resulturl || obj.result || "").replace(/^[,\s"]+|[,\s"]+$/g, '')
-    };
-
-    rows.push(tournament);
+    return rows;
+  } catch (e) {
+    console.error("GViz parsing failed:", e);
+    return [];
   }
-  return rows;
 }
 
 async function fetchTournaments() {
@@ -1380,7 +1359,7 @@ async function fetchTournaments() {
           if (!res.ok) throw new Error('Sheet load error');
           return res.text();
         })
-        .then(csvText => parseCSV(csvText))
+        .then(text => parseGVizData(text))
         .catch(err => {
           console.warn("Failed fetching sheet:", url, err);
           return [];
