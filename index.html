@@ -184,7 +184,7 @@ nav a:hover{color:var(--gold2)}
   color: #111;
 }
 
-/* Original Screenshot Layout for First Slide */
+/* Brand Hero Card */
 .slide-card.brand-hero-card {
   background: radial-gradient(ellipse at 50% 20%, #3a2410 0%, #150e08 55%, #0c0906 85%);
   display: flex;
@@ -592,7 +592,7 @@ dialog#image-modal::backdrop{
   display:block;
 }
 
-/* Mobile slide adjustments */
+/* Responsive Styles */
 @media (max-width: 767px) {
   .carousel-slide { display: flex; }
   .slide-card { height: auto; flex: 1 1 auto; }
@@ -653,7 +653,6 @@ dialog#image-modal::backdrop{
   .slide-desc { font-size: 0.8rem; }
 }
 
-/* Desktop Breakpoints */
 @media (min-width: 768px) {
   .banner-carousel-section { padding: 32px 0 44px; }
   .slide-card {
@@ -725,13 +724,12 @@ dialog#image-modal::backdrop{
 </header>
 
 <main id="top">
-  <!-- Single Large Banner Carousel Section -->
+  <!-- Carousel Section -->
   <section class="banner-carousel-section">
     <div class="carousel-container">
       <div class="carousel-viewport" id="carouselViewport">
         <div class="carousel-track" id="carouselTrack">
           
-          <!-- Slide 1: Main Brand Hero -->
           <div class="carousel-slide">
             <div class="slide-card brand-hero-card">
               <canvas id="hero-canvas"></canvas>
@@ -749,7 +747,6 @@ dialog#image-modal::backdrop{
             </div>
           </div>
 
-          <!-- Slide 2: Diwali Special -->
           <div class="carousel-slide">
             <div class="slide-card">
               <img src="_slide1.jpg" alt="KLM Diwali Specials" class="slide-img">
@@ -761,7 +758,6 @@ dialog#image-modal::backdrop{
             </div>
           </div>
 
-          <!-- Slide 3: Saturday Special -->
           <div class="carousel-slide">
             <div class="slide-card">
               <img src="_slide2.jpg" alt="KLM Saturday Showdown" class="slide-img">
@@ -773,7 +769,6 @@ dialog#image-modal::backdrop{
             </div>
           </div>
 
-          <!-- Slide 4: Sunday Special -->
           <div class="carousel-slide">
             <div class="slide-card">
               <img src="_slide3.jpg" alt="KLM Sunday Warzone" class="slide-img">
@@ -785,7 +780,6 @@ dialog#image-modal::backdrop{
             </div>
           </div>
 
-          <!-- Slide 5: Christmas Special -->
           <div class="carousel-slide">
             <div class="slide-card">
               <img src="_slide4.jpg" alt="KLM Christmas Clash" class="slide-img">
@@ -797,7 +791,6 @@ dialog#image-modal::backdrop{
             </div>
           </div>
 
-          <!-- Slide 6: New Year Special -->
           <div class="carousel-slide">
             <div class="slide-card">
               <img src="_slide5.jpg" alt="KLM New Year Bash" class="slide-img">
@@ -875,7 +868,7 @@ dialog#image-modal::backdrop{
   </div>
 </footer>
 
-<!-- Full Tournament History Modal Dialog -->
+<!-- Full History Modal Dialog -->
 <dialog id="history-modal" aria-label="All Tournament History">
   <div class="modal-header">
     <div class="modal-top-bar">
@@ -1009,7 +1002,7 @@ if (intro) {
   }
 }
 
-// Floating Sparkles / Particles Canvas Effect
+// Floating Sparkles Effect
 (function(){
   var c = document.getElementById('hero-canvas');
   if(!c) return;
@@ -1048,10 +1041,10 @@ if (intro) {
   }
 })();
 
-// Google Sheets GViz API JSON Endpoints
+// Google Sheets Live Data Sources (CSV Format)
 const SHEET_URLS = [
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/gviz/tq?tqx=out:json&gid=972107976",
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/gviz/tq?tqx=out:json&gid=582137958"
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/pub?output=csv&gid=972107976",
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQrda-JJwn0wFFlqs83iQXjVg1TXeNxdtEOrNW52jXJOahIelYlwIa2kyVkS6-EuZbu2D3FvIlxUwHZ/pub?output=csv&gid=582137958"
 ];
 
 const fallbackTournaments = [
@@ -1113,7 +1106,7 @@ imgModal.addEventListener('close', () => { modalImg.src = ""; });
 imgModal.addEventListener('click', e => { if (e.target === imgModal) closePopup(); });
 document.getElementById('m-close').addEventListener('click', closePopup);
 
-// Upcoming Tournaments Auto-Scroll
+// Auto-Scroll
 let upcomingAutoTimer;
 function setupUpcomingAutoScroll() {
   if (upcomingAutoTimer) clearInterval(upcomingAutoTimer);
@@ -1229,7 +1222,6 @@ function buildCard(t, past) {
   return li;
 }
 
-// Render History Modal with Filtered Tournaments
 function renderHistoryModal(filterQuery = '') {
   const query = filterQuery.toLowerCase().trim();
   const filtered = allPastTournaments.filter(t => {
@@ -1242,7 +1234,6 @@ function renderHistoryModal(filterQuery = '') {
   modalHistoryEmpty.hidden = filtered.length > 0;
 }
 
-// History Modal Events
 btnViewAllHistory.addEventListener('click', () => {
   historySearchInput.value = '';
   renderHistoryModal('');
@@ -1266,10 +1257,8 @@ function render() {
   const upcoming = allTournaments.filter(t => !isPast(t)).sort((a, b) => endTime(a) - endTime(b));
   allPastTournaments = allTournaments.filter(isPast).sort((a, b) => endTime(b) - endTime(a));
   
-  // Render Upcoming Tournaments
   list.replaceChildren(...upcoming.map(t => buildCard(t, false)));
   
-  // Render Tournament History
   const previewPast = allPastTournaments.slice(0, 4);
   histList.replaceChildren(...previewPast.map(t => buildCard(t, true)));
   
@@ -1291,64 +1280,88 @@ function render() {
   }
 }
 
-// Parse Google Visualization JSON Format accurately cell-by-cell
-function parseGVizData(rawText) {
-  try {
-    const jsonString = rawText.substring(rawText.indexOf('{'), rawText.lastIndexOf('}') + 1);
-    const data = JSON.parse(jsonString);
-    if (!data.table || !data.table.rows) return [];
+// Robust CSV Parsing: Handles commas inside Google Drive links and formulas safely
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let inQuotes = false;
+  let curVal = '';
 
-    const cols = data.table.cols.map(c => (c.label || c.id || '').toLowerCase().replace(/[^a-z0-9]/g, ''));
-    const rows = [];
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i + 1];
 
-    data.table.rows.forEach(r => {
-      if (!r.c) return;
-      const obj = {};
-      r.c.forEach((cell, idx) => {
-        const colName = cols[idx] || `col_${idx}`;
-        let val = '';
-        if (cell && cell.v !== null && cell.v !== undefined) {
-          val = String(cell.f || cell.v).trim();
-        }
-        obj[colName] = val;
-      });
-
-      const rawTitle = (obj.title || obj.tournament || obj.name || '').trim();
-      const rawDate = (obj.date || obj.matchdate || '').trim();
-
-      if (!rawTitle || !rawDate) return;
-
-      let rawImg = obj.image || obj.thumbnail || obj.imageurl || "1000193608.webp";
-      rawImg = rawImg.trim();
-
-      // Convert Google Drive view/share link directly to loadable image CDN URL
-      if (rawImg.includes("drive.google.com")) {
-        const driveMatch = rawImg.match(/[-\w]{25,}/);
-        if (driveMatch) {
-          rawImg = `https://lh3.googleusercontent.com/d/${driveMatch[0]}`;
-        }
+    if (c === '"') {
+      if (inQuotes && next === '"') {
+        curVal += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
       }
+    } else if (c === ',' && !inQuotes) {
+      row.push(curVal.trim());
+      curVal = '';
+    } else if ((c === '\r' || c === '\n') && !inQuotes) {
+      if (c === '\r' && next === '\n') i++;
+      row.push(curVal.trim());
+      if (row.length > 0 && row.some(cell => cell !== '')) {
+        rows.push(row);
+      }
+      row = [];
+      curVal = '';
+    } else {
+      curVal += c;
+    }
+  }
+  if (curVal || row.length > 0) {
+    row.push(curVal.trim());
+    if (row.some(cell => cell !== '')) rows.push(row);
+  }
 
-      rows.push({
-        game: (obj.game || obj.gamename || "BGMI").trim() || "BGMI",
-        title: rawTitle,
-        entry: (obj.entry || obj.entryfee || "FREE ENTRY").trim() || "FREE ENTRY",
-        date: rawDate,
-        time: (obj.time || obj.matchtime || "").trim(),
-        image: rawImg,
-        mapBadge: (obj.mapbadge || obj.map || obj.badge || "").trim(),
-        detailsUrl: (obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || obj.slotlisturl || obj.slotlist || "").trim(),
-        slotListUrl: (obj.slotlisturl || obj.slotlist || obj.slots || "").trim(),
-        registerUrl: (obj.registerurl || obj.register || obj.registration || obj.bookslot || obj.bookyourslot || obj.registerhtml || "").trim(),
-        resultUrl: (obj.resulturl || obj.result || "").trim()
-      });
+  if (rows.length < 2) return [];
+
+  const headers = rows[0].map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const tournamentList = [];
+
+  for (let i = 1; i < rows.length; i++) {
+    const values = rows[i];
+    const obj = {};
+    headers.forEach((h, idx) => {
+      obj[h] = values[idx] || '';
     });
 
-    return rows;
-  } catch (e) {
-    console.error("GViz parsing failed:", e);
-    return [];
+    const rawTitle = (obj.title || obj.tournament || obj.name || '').replace(/^["']|["']$/g, '').trim();
+    const rawDate = (obj.date || obj.matchdate || '').replace(/^["']|["']$/g, '').trim();
+
+    if (!rawTitle || !rawDate) continue;
+
+    let rawImg = obj.image || obj.thumbnail || obj.imageurl || "1000193608.webp";
+    rawImg = rawImg.replace(/^["']|["']$/g, '').trim();
+
+    // Auto convert Google Drive links directly to fast loading direct images
+    if (rawImg.includes("drive.google.com")) {
+      const driveMatch = rawImg.match(/[-\w]{25,}/);
+      if (driveMatch) {
+        rawImg = `https://lh3.googleusercontent.com/d/${driveMatch[0]}`;
+      }
+    }
+
+    tournamentList.push({
+      game: (obj.game || obj.gamename || "BGMI").replace(/^["']|["']$/g, '').trim() || "BGMI",
+      title: rawTitle,
+      entry: (obj.entry || obj.entryfee || "FREE ENTRY").replace(/^["']|["']$/g, '').trim() || "FREE ENTRY",
+      date: rawDate,
+      time: (obj.time || obj.matchtime || "").replace(/^["']|["']$/g, '').trim(),
+      image: rawImg,
+      mapBadge: (obj.mapbadge || obj.map || obj.badge || "").replace(/^["']|["']$/g, '').trim(),
+      detailsUrl: (obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || obj.slotlisturl || obj.slotlist || "").replace(/^["']|["']$/g, '').trim(),
+      slotListUrl: (obj.slotlisturl || obj.slotlist || obj.slots || "").replace(/^["']|["']$/g, '').trim(),
+      registerUrl: (obj.registerurl || obj.register || obj.registration || obj.bookslot || obj.bookyourslot || obj.registerhtml || "").replace(/^["']|["']$/g, '').trim(),
+      resultUrl: (obj.resulturl || obj.result || "").replace(/^["']|["']$/g, '').trim()
+    });
   }
+
+  return tournamentList;
 }
 
 async function fetchTournaments() {
@@ -1359,7 +1372,7 @@ async function fetchTournaments() {
           if (!res.ok) throw new Error('Sheet load error');
           return res.text();
         })
-        .then(text => parseGVizData(text))
+        .then(csvText => parseCSV(csvText))
         .catch(err => {
           console.warn("Failed fetching sheet:", url, err);
           return [];
