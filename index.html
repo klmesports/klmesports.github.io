@@ -1140,17 +1140,32 @@ function setupUpcomingAutoScroll() {
 }
 
 const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-function endOfDay(t) {
-  if (!t.date) return null;
-  const m = /^(\d{1,2})\s+([A-Za-z]{3})[A-Za-z]*\s+(\d{4})$/.exec(String(t.date).trim());
+
+function getMatchTime(t) {
+  if (!t.date) return 0;
+  const timeStr = t.time ? t.time.trim() : '11:59 PM';
+  const fullStr = `${t.date.trim()} ${timeStr}`;
+  const parsed = Date.parse(fullStr);
+  if (!isNaN(parsed)) return parsed;
+
+  const m = /^(\d{1,2})\s+([A-Za-z]{3})[A-Za-z]*\s+(\d{4})/i.exec(t.date.trim());
   if (m) {
     const mon = MONTHS.indexOf(m[2].toUpperCase());
-    if (mon >= 0) return new Date(+m[3], mon, +m[1] + 1);
+    const tm = /(\d{1,2}):(\d{2})(?:\s*([AP]M))?/i.exec(timeStr);
+    let hrs = 23, mins = 59;
+    if (tm) {
+      hrs = parseInt(tm[1], 10);
+      mins = parseInt(tm[2], 10);
+      const mer = tm[3] ? tm[3].toUpperCase() : '';
+      if (mer === 'PM' && hrs < 12) hrs += 12;
+      if (mer === 'AM' && hrs === 12) hrs = 0;
+    }
+    return new Date(+m[3], mon, +m[1], hrs, mins).getTime();
   }
-  const parsed = Date.parse(t.date);
-  return isNaN(parsed) ? null : new Date(parsed + 86400000);
+  return 0;
 }
-function endTime(t) { const e = endOfDay(t); return e ? e.getTime() : Infinity; }
+
+function endTime(t) { const e = getMatchTime(t); return e ? e : Infinity; }
 function isPast(t) { return endTime(t) <= Date.now(); }
 
 function buildCard(t, past) {
