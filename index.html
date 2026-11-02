@@ -405,40 +405,52 @@ a.btn-outline{display:block;text-align:center;text-decoration:none}
 
 /* Contact Details */
 #contact p{color:var(--muted);max-width:56ch;font-size:1.05rem}
-.contact-buttons{
+.contact-btns{
   display:flex;
   flex-wrap:wrap;
-  gap:14px;
-  margin-top:24px;
+  gap:12px;
+  margin-top:20px;
 }
-.contact-btn{
+.btn-contact{
   display:inline-flex;
   align-items:center;
-  gap:10px;
-  padding:12px 20px;
+  justify-content:center;
+  padding:12px 28px;
   border-radius:8px;
-  font-weight:700;
+  font-weight:800;
   font-size:0.95rem;
   text-decoration:none;
-  transition:all 0.2s ease;
+  letter-spacing:.02em;
+  transition:all .2s ease;
 }
-.btn-ig{
-  background:linear-gradient(90deg,var(--gold),var(--gold2));
-  color:#1a1004;
-}
-.btn-ig:hover{filter:brightness(1.1);transform:translateY(-2px)}
 .btn-wa{
   background:#1f2e1e;
   color:#4ade80;
   border:1px solid #2e7d32;
 }
-.btn-wa:hover{background:#284227;color:#fff;transform:translateY(-2px)}
-.btn-mail{
-  background:#241d14;
-  color:var(--gold2);
-  border:1px solid var(--line);
+.btn-wa:hover{
+  background:#2e7d32;
+  color:#fff;
+  transform:translateY(-2px);
 }
-.btn-mail:hover{background:var(--panel2);border-color:var(--gold);transform:translateY(-2px)}
+.btn-mail{
+  background:var(--panel2);
+  color:var(--gold2);
+  border:1px solid var(--gold);
+}
+.btn-mail:hover{
+  background:var(--gold);
+  color:#111;
+  transform:translateY(-2px);
+}
+.btn-ig{
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  color:#1a1004;
+}
+.btn-ig:hover{
+  filter:brightness(1.1);
+  transform:translateY(-2px);
+}
 
 /* Footer */
 footer{background:#080604;border-top:1px solid var(--line);padding:40px 0 28px}
@@ -446,9 +458,8 @@ footer{background:#080604;border-top:1px solid var(--line);padding:40px 0 28px}
 .f-links{display:flex;flex-wrap:wrap;gap:14px 32px;margin-top:28px;padding-top:24px;border-top:1px solid var(--line)}
 .f-links a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
 .f-links a:hover,.f-social:hover{color:var(--gold2)}
-.f-socials{display:flex;align-items:center;gap:14px}
-.f-social{color:var(--text);display:flex;align-items:center;transition:color .2s}
-.f-social svg{width:24px;height:24px;display:block}
+.f-social{color:var(--text)}
+.f-social svg{width:26px;height:26px;display:block}
 .copy{margin-top:24px;color:#6b6255;font-size:.85rem}
 
 /* History Modal */
@@ -681,12 +692,11 @@ dialog#image-modal::backdrop{
     display: flex;
     overflow-x: auto;
   }
-  .contact-buttons {
+  .contact-btns {
     flex-direction: column;
   }
-  .contact-btn {
+  .btn-contact {
     width: 100%;
-    justify-content: center;
   }
 }
 
@@ -886,20 +896,11 @@ dialog#image-modal::backdrop{
   <section id="contact">
     <div class="wrap">
       <h2>Contact Us</h2>
-      <p>Have questions about tournaments, slot registrations, or sponsorship? Reach out to us directly through WhatsApp, Instagram, or Email.</p>
-      <div class="contact-buttons">
-        <a class="contact-btn btn-wa" href="https://wa.me/918089601562" target="_blank" rel="noopener">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          <span>WhatsApp (+91 8089601562)</span>
-        </a>
-        <a class="contact-btn btn-mail" href="mailto:Klmesportsweb@gmail.com">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          <span>Klmesportsweb@gmail.com</span>
-        </a>
-        <a class="contact-btn btn-ig" href="https://www.instagram.com/kl_masters_esports" target="_blank" rel="noopener">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-          <span>@kl_masters_esports</span>
-        </a>
+      <p>Message us for registrations, sponsorships and questions.</p>
+      <div class="contact-btns">
+        <a class="btn-contact btn-wa" href="https://wa.me/918089601562" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn-contact btn-mail" href="mailto:Klmesportsweb@gmail.com">Email</a>
+        <a class="btn-contact btn-ig" href="https://www.instagram.com/kl_masters_esports" target="_blank" rel="noopener">Instagram</a>
       </div>
     </div>
   </section>
@@ -909,17 +910,9 @@ dialog#image-modal::backdrop{
   <div class="wrap">
     <div class="f-top">
       <a class="brand" href="#top">KLM <span>ESPORTS</span></a>
-      <div class="f-socials">
-        <a class="f-social" href="https://wa.me/918089601562" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        </a>
-        <a class="f-social" href="mailto:Klmesportsweb@gmail.com" aria-label="Email" title="Email">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        </a>
-        <a class="f-social" href="https://www.instagram.com/kl_masters_esports" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-        </a>
-      </div>
+      <a class="f-social" href="https://www.instagram.com/kl_masters_esports" target="_blank" rel="noopener" aria-label="KLM Esports on Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
     </div>
     <nav class="f-links" aria-label="Footer" style="margin-left:0; position:static; width:auto; background:transparent; border:none; display:flex; flex-direction:row; padding:0; box-shadow:none;">
       <a href="#tournaments" style="border:none;">Upcoming Tournaments</a>
@@ -1287,13 +1280,14 @@ function buildCard(t, past) {
         actions.append(view);
       }
       if (hasRegister) {
-        const closeTime = getMatchTime(t) - (15 * 60 * 1000);
-        const isBookingClosed = Date.now() >= closeTime;
+        const mTime = getMatchTime(t);
+        const closeTime = mTime ? mTime - (15 * 60 * 1000) : 0;
+        const isBookingClosed = closeTime > 0 && Date.now() >= closeTime;
 
         if (isBookingClosed) {
           const closedNote = el('p', 't-result', 'Booking Closed');
-          closedNote.style.borderColor = '#e0a030';
-          closedNote.style.color = '#ffd27a';
+          closedNote.style.borderColor = 'var(--gold)';
+          closedNote.style.color = 'var(--gold2)';
           actions.append(closedNote);
         } else {
           const reg = el('a', 'btn', 'Book Your Slot');
@@ -1365,19 +1359,11 @@ function render() {
 
   clearTimeout(timer);
   if (upcoming.length && isFinite(endTime(upcoming[0]))) {
-    const nextMatch = upcoming[0];
-    const matchT = endTime(nextMatch);
-    const closeT = matchT - (15 * 60 * 1000);
-    const now = Date.now();
-    let nextDelay = matchT - now + 1000;
-    if (closeT > now) {
-      nextDelay = Math.min(nextDelay, closeT - now + 1000);
-    }
-    timer = setTimeout(render, Math.min(Math.max(nextDelay, 1000), 2147483647));
+    timer = setTimeout(render, Math.min(endTime(upcoming[0]) - Date.now() + 1000, 2147483647));
   }
 }
 
-// Robust CSV Parsing: Handles commas inside Google Drive links and formulas safely
+// Robust CSV Parsing: Exactly from original working code
 function parseCSV(text) {
   const rows = [];
   let row = [];
@@ -1398,10 +1384,8 @@ function parseCSV(text) {
     } else if (c === ',' && !inQuotes) {
       row.push(curVal.trim());
       curVal = '';
-    } else if ((c === '' || c === '
-') && !inQuotes) {
-      if (c === '' && next === '
-') i++;
+    } else if ((c === '\r' || c === '\n') && !inQuotes) {
+      if (c === '\r' && next === '\n') i++;
       row.push(curVal.trim());
       if (row.length > 0 && row.some(cell => cell !== '')) {
         rows.push(row);
