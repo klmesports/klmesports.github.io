@@ -1248,9 +1248,9 @@ const fallbackTournaments = [
     time: "10:00 PM",
     image: "1000193608.webp",
     mapBadge: "ERANGEL",
-    detailsUrl: "bgmi-friendly-match.html",
-    slotListUrl: "slot-list 1.html",
-    registerUrl: "registration 1.html",
+    detailsUrl: "",
+    slotListUrl: "",
+    registerUrl: "",
     resultUrl: "result-friendly-match.jpg"
   }
 ];
@@ -1381,7 +1381,6 @@ function checkIsLive(t) {
 // സമയം കഴിയുകയും, ലൈവ് അല്ലാതിരിക്കുകയും ചെയ്താൽ മാത്രമേ ഹിസ്റ്ററിയിലേക്ക് പോകൂ!
 function isPast(t) {
   if (checkIsLive(t)) return false;
-  if (t.registerUrl) return false;
   return endTime(t) <= Date.now();
 }
 
@@ -1608,10 +1607,8 @@ function parseCSV(text) {
     } else if (c === ',' && !inQuotes) {
       row.push(curVal.trim());
       curVal = '';
-    } else if ((c === '' || c === '
-') && !inQuotes) {
-      if (c === '' && next === '
-') i++;
+    } else if ((c === '\r' || c === '\n') && !inQuotes) {
+      if (c === '\r' && next === '\n') i++;
       row.push(curVal.trim());
       if (row.length > 0 && row.some(cell => cell !== '')) {
         rows.push(row);
