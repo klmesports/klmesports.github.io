@@ -1369,23 +1369,22 @@ function getMatchTime(t) {
 
 function endTime(t) { const e = getMatchTime(t); return e ? e : Infinity; }
 
-// detailsUrl ഉണ്ടെങ്കിൽ ടൈം കഴിഞ്ഞാലും ഹിസ്റ്ററിയിലേക്ക് മാറില്ല (ലൈവ് ആയി നിൽക്കും)
+// detailsUrl ഉണ്ടെങ്കിൽ സമയം കഴിഞ്ഞാലും ഹിസ്റ്ററിയിലേക്ക് മാറില്ല (ലൈവ് ആയി നിൽക്കും)
 function isPast(t) {
   if (t.detailsUrl) return false;
   return endTime(t) <= Date.now();
 }
 
-// detailsUrl ഉണ്ടെങ്കിൽ നേരിട്ട് ലൈവ് ടൂർണമെന്റ് ആയി മാറും
+// 15 മിനിറ്റിനുള്ളിലോ സമയം കഴിഞ്ഞോ registerUrl ഇല്ലാതെ detailsUrl ഉണ്ടെങ്കിലോ Live ആകും
 function checkIsLive(t) {
-  if (t.detailsUrl) return true;
   if (isPast(t)) return false;
+  if (t.detailsUrl) return true;
+
   const mTime = getMatchTime(t);
   const closeTime = mTime ? mTime - (15 * 60 * 1000) : 0;
   const isBookingClosed = closeTime > 0 && Date.now() >= closeTime;
-  const hasRegister = Boolean(t.registerUrl);
-  const hasSlotList = Boolean(t.slotListUrl);
 
-  return isBookingClosed || (!hasRegister && hasSlotList);
+  return isBookingClosed || (!t.registerUrl && Boolean(t.slotListUrl));
 }
 
 function buildCard(t, past, isLive = false) {
@@ -1462,7 +1461,12 @@ function buildCard(t, past, isLive = false) {
       actions.append(ytLiveBtn);
     }
 
-    if (!t.detailsUrl && !t.slotListUrl && !hasYT) {
+    // 15 മിനിറ്റ് മുമ്പ് ലൈവിലേക്ക് മാറുമ്പോഴും അല്ലെങ്കിൽ detailsUrl ഇല്ലാത്തപ്പോഴോ 'Booking Closed' കാണിക്കുന്നു
+    const mTime = getMatchTime(t);
+    const closeTime = mTime ? mTime - (15 * 60 * 1000) : 0;
+    const isBookingClosed = closeTime > 0 && Date.now() >= closeTime;
+
+    if (!t.detailsUrl && (isBookingClosed || !t.registerUrl)) {
       const closedNote = el('p', 't-result', 'Match Live • Booking Closed');
       closedNote.style.borderColor = '#ef4444';
       closedNote.style.color = '#ff6b6b';
@@ -1473,6 +1477,10 @@ function buildCard(t, past, isLive = false) {
     const hasDetails = Boolean(t.detailsUrl || t.slotListUrl);
     const hasRegister = Boolean(t.registerUrl);
     const hasResultImage = Boolean(t.resultUrl && !hasYT);
+
+    const mTime = getMatchTime(t);
+    const closeTime = mTime ? mTime - (15 * 60 * 1000) : 0;
+    const isBookingClosed = closeTime > 0 && Date.now() >= closeTime;
 
     if (hasResultImage && !hasDetails && !hasRegister) {
       const res = el('button', 'btn-outline', 'View Result');
@@ -1494,11 +1502,19 @@ function buildCard(t, past, isLive = false) {
         actions.append(view);
       }
       if (hasRegister) {
-        const reg = el('a', 'btn', 'Book Your Slot');
-        reg.href = t.registerUrl;
-        reg.rel = 'noopener';
-        reg.append(el('small', '', t.entry || 'Tournament Entry'));
-        actions.append(reg);
+        if (isBookingClosed) {
+          // 15 മിനിറ്റ് മുമ്പാണെങ്കിൽ രജിസ്റ്റർ ലിങ്ക് ഉണ്ടെങ്കിലും ബുക്കിംഗ് ക്ലോസ്ഡ് എന്ന് കാണിക്കുന്നു
+          const closedBtn = el('p', 't-result', 'Booking Closed');
+          closedBtn.style.borderColor = '#ef4444';
+          closedBtn.style.color = '#ff6b6b';
+          actions.append(closedBtn);
+        } else {
+          const reg = el('a', 'btn', 'Book Your Slot');
+          reg.href = t.registerUrl;
+          reg.rel = 'noopener';
+          reg.append(el('small', '', t.entry || 'Tournament Entry'));
+          actions.append(reg);
+        }
       }
     }
   }
