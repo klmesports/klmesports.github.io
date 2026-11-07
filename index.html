@@ -693,7 +693,7 @@ dialog#image-modal::backdrop{
   display:block;
 }
 
-/* Live Navigation & Live Score Button Styles */
+/* Live Navigation & Buttons */
 .live-nav-link {
   color: #ff6b6b !important;
   display: flex;
@@ -736,6 +736,25 @@ dialog#image-modal::backdrop{
 .btn-live-score .live-dot {
   width: 7px;
   height: 7px;
+}
+
+/* Dedicated YouTube Live Button */
+.btn-yt-live {
+  background: #c4302b !important;
+  color: #ffffff !important;
+  border: 1px solid #ff4d4d !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(196, 48, 43, 0.35);
+  transition: all .2s ease;
+}
+.btn-yt-live:hover {
+  background: #e62117 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(230, 33, 23, 0.5);
 }
 
 /* Responsive Styles */
@@ -962,7 +981,7 @@ dialog#image-modal::backdrop{
     </div>
   </section>
 
-  <!-- 1. Dedicated LIVE TOURNAMENTS SECTION (Separate Section) -->
+  <!-- 1. Dedicated LIVE TOURNAMENTS SECTION -->
   <section id="live-tournaments" hidden>
     <div class="wrap">
       <div class="live-sec-head">
@@ -976,7 +995,7 @@ dialog#image-modal::backdrop{
     </div>
   </section>
 
-  <!-- 2. UPCOMING TOURNAMENTS SECTION (Separate Section) -->
+  <!-- 2. UPCOMING TOURNAMENTS SECTION -->
   <section id="tournaments">
     <div class="wrap">
       <h2>Upcoming Tournaments</h2>
@@ -1269,6 +1288,12 @@ function el(tag, cls, text) {
   return e;
 }
 
+// Check if link is YouTube
+function isYouTubeUrl(url) {
+  if (!url) return false;
+  return /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url.trim());
+}
+
 function showResultPopup(imgSrc, title) {
   modalImg.src = imgSrc;
   modalTitle.textContent = title + " - Result";
@@ -1345,7 +1370,7 @@ function getMatchTime(t) {
 function endTime(t) { const e = getMatchTime(t); return e ? e : Infinity; }
 function isPast(t) { return endTime(t) <= Date.now(); }
 
-// തന്നിട്ടുള്ള ടൂർണമെന്റ് നിലവിൽ ലൈവ് ആണോ എന്ന് പരിശോധിക്കുന്നു
+// Check if tournament is live
 function checkIsLive(t) {
   if (isPast(t)) return false;
   const mTime = getMatchTime(t);
@@ -1354,7 +1379,6 @@ function checkIsLive(t) {
   const hasRegister = Boolean(t.registerUrl);
   const hasDetails = Boolean(t.detailsUrl || t.slotListUrl);
 
-  // ബുക്കിംഗ് ക്ലോസ് ആവുകയോ, അല്ലെങ്കിൽ ഷീറ്റിൽ രജിസ്ട്രേഷൻ ലിങ്ക് നൽകാതെ ഡീറ്റെയിൽസ് യുആർഎൽ മാത്രം നൽകുകയോ ചെയ്യുമ്പോൾ ലൈവ് ആയി കണക്കാക്കും
   return isBookingClosed || (!hasRegister && hasDetails);
 }
 
@@ -1382,15 +1406,26 @@ function buildCard(t, past, isLive = false) {
   );
 
   const actions = el('div', 't-actions');
+  const hasYT = isYouTubeUrl(t.resultUrl);
+
   if (past) {
+    // കഴിഞ്ഞ ടൂർണമെന്റുകൾ: യൂട്യൂബ് ലിങ്ക് ആണെങ്കിൽ സ്ട്രീം കാണാൻ ഓപ്ഷൻ, ഡ്രൈവ്/ഇമേജ് ലിങ്ക് ആണെങ്കിൽ പഴയപോലെ പോപ്പ്-അപ്പ്
     if (t.resultUrl) {
-      const res = el('button', 'btn-outline', 'View Result');
-      res.type = 'button';
-      res.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showResultPopup(t.resultUrl, (t.game || '') + ' ' + (t.title || ''));
-      });
-      actions.append(res);
+      if (hasYT) {
+        const ytBtn = el('a', 'btn-outline btn-yt-live', '▶ Watch Stream');
+        ytBtn.href = t.resultUrl;
+        ytBtn.target = '_blank';
+        ytBtn.rel = 'noopener';
+        actions.append(ytBtn);
+      } else {
+        const res = el('button', 'btn-outline', 'View Result');
+        res.type = 'button';
+        res.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showResultPopup(t.resultUrl, (t.game || '') + ' ' + (t.title || ''));
+        });
+        actions.append(res);
+      }
     } else {
       const res = el('button', 'btn-outline', 'View Result');
       res.type = 'button';
@@ -1404,23 +1439,47 @@ function buildCard(t, past, isLive = false) {
       actions.append(res, note);
     }
   } else if (isLive) {
-    // ലൈവ് ടൂർണമെന്റ് കാർഡിലെ ബട്ടണുകൾ
-    const liveBtn = el('a', 'btn-outline btn-live-score', '');
-    const dot = el('span', 'live-dot');
-    liveBtn.append(dot, document.createTextNode(' View Live Score'));
-    liveBtn.href = t.detailsUrl || t.slotListUrl || '#';
-    actions.append(liveBtn);
+    // ലൈവ് ടൂർണമെന്റ്: Details URL ഉണ്ടെങ്കിൽ Live Score ബട്ടൺ
+    if (t.detailsUrl || t.slotListUrl) {
+      const liveBtn = el('a', 'btn-outline btn-live-score', '');
+      const dot = el('span', 'live-dot');
+      liveBtn.append(dot, document.createTextNode(' View Live Score'));
+      liveBtn.href = t.detailsUrl || t.slotListUrl;
+      actions.append(liveBtn);
+    }
 
-    const closedNote = el('p', 't-result', 'Match Live • Booking Closed');
-    closedNote.style.borderColor = '#ef4444';
-    closedNote.style.color = '#ff6b6b';
-    actions.append(closedNote);
+    // Result URL-ൽ YouTube ലിങ്ക് ഉണ്ടെങ്കിൽ മാത്രം "Watch Live on YouTube" ബട്ടൺ
+    if (hasYT) {
+      const ytLiveBtn = el('a', 'btn btn-yt-live', '▶ Watch Live on YouTube');
+      ytLiveBtn.href = t.resultUrl;
+      ytLiveBtn.target = '_blank';
+      ytLiveBtn.rel = 'noopener';
+      actions.append(ytLiveBtn);
+    }
+
+    // ഒരു ലിങ്കും ഇല്ലെങ്കിൽ മാത്രം Booking Closed നോട്ട്
+    if (!t.detailsUrl && !t.slotListUrl && !hasYT) {
+      const closedNote = el('p', 't-result', 'Match Live • Booking Closed');
+      closedNote.style.borderColor = '#ef4444';
+      closedNote.style.color = '#ff6b6b';
+      actions.append(closedNote);
+    }
   } else {
-    // അപ്കമിംഗ് ടൂർണമെന്റ് കാർഡിലെ ബട്ടണുകൾ
+    // അപ്കമിംഗ് ടൂർണമെന്റ്
     const hasDetails = Boolean(t.detailsUrl || t.slotListUrl);
     const hasRegister = Boolean(t.registerUrl);
+    const hasResultImage = Boolean(t.resultUrl && !hasYT);
 
-    if (!hasDetails && !hasRegister) {
+    if (hasResultImage && !hasDetails && !hasRegister) {
+      // Details URL ഇല്ലാതെ Result URL മാത്രം കൊടുത്താൽ പഴയപോലെ തന്നെ View Result ബട്ടൺ
+      const res = el('button', 'btn-outline', 'View Result');
+      res.type = 'button';
+      res.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showResultPopup(t.resultUrl, (t.game || '') + ' ' + (t.title || ''));
+      });
+      actions.append(res);
+    } else if (!hasDetails && !hasRegister) {
       const statusNote = el('p', 't-result', 'Registration Not Started');
       statusNote.style.borderColor = 'var(--gold)';
       statusNote.style.color = 'var(--gold2)';
@@ -1481,11 +1540,10 @@ function render() {
   const nonPast = allTournaments.filter(t => !isPast(t)).sort((a, b) => endTime(a) - endTime(b));
   allPastTournaments = allTournaments.filter(isPast).sort((a, b) => endTime(b) - endTime(a));
 
-  // ലൈവ് ടൂർണമെന്റുകളും അപ്കമിംഗ് ടൂർണമെന്റുകളും രണ്ട് പ്രത്യേക ഗ്രൂപ്പുകളാക്കുന്നു
   const liveTournaments = nonPast.filter(t => checkIsLive(t));
   const upcomingTournaments = nonPast.filter(t => !checkIsLive(t));
 
-  // 1. Live Tournaments സെക്ഷൻ റെൻഡർ ചെയ്യൽ
+  // 1. Live Tournaments Section
   if (liveTournaments.length > 0) {
     liveSection.hidden = false;
     navLiveLink.hidden = false;
@@ -1499,12 +1557,12 @@ function render() {
     liveList.innerHTML = '';
   }
 
-  // 2. Upcoming Tournaments സെക്ഷൻ റെൻഡർ ചെയ്യൽ
+  // 2. Upcoming Tournaments Section
   list.replaceChildren(...upcomingTournaments.map(t => buildCard(t, false, false)));
   empty.hidden = upcomingTournaments.length > 0;
   setupHorizontalAutoScroll(list);
 
-  // 3. Tournament History സെക്ഷൻ റെൻഡർ ചെയ്യൽ
+  // 3. Tournament History Section
   const previewPast = allPastTournaments.slice(0, 4);
   histList.replaceChildren(...previewPast.map(t => buildCard(t, true, false)));
   histEmpty.hidden = allPastTournaments.length > 0;
@@ -1522,7 +1580,7 @@ function render() {
   }
 }
 
-// Robust CSV Parsing
+// Robust CSV Parsing with Google Drive link converter
 function parseCSV(text) {
   const rows = [];
   let row = [];
@@ -1587,6 +1645,15 @@ function parseCSV(text) {
       }
     }
 
+    let rawResult = (obj.resulturl || obj.result || "").replace(/^["']|["']$/g, '').trim();
+    // ഗൂഗിൾ ഡ്രൈവ് ഇമേജ് ലിങ്ക് ആണെങ്കിൽ നേരിട്ട് കാണുന്ന തരം ലിങ്കാക്കി മാറ്റുന്നു
+    if (rawResult.includes("drive.google.com")) {
+      const resultDriveMatch = rawResult.match(/[-\w]{25,}/);
+      if (resultDriveMatch) {
+        rawResult = `https://lh3.googleusercontent.com/d/${resultDriveMatch[0]}`;
+      }
+    }
+
     tournamentList.push({
       game: (obj.game || obj.gamename || "BGMI").replace(/^["']|["']$/g, '').trim() || "BGMI",
       title: rawTitle,
@@ -1595,10 +1662,10 @@ function parseCSV(text) {
       time: (obj.time || obj.matchtime || "").replace(/^["']|["']$/g, '').trim(),
       image: rawImg,
       mapBadge: (obj.mapbadge || obj.map || obj.badge || "").replace(/^["']|["']$/g, '').trim(),
-      detailsUrl: (obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || obj.slotlisturl || obj.slotlist || "").replace(/^["']|["']$/g, '').trim(),
+      detailsUrl: (obj.detailsurl || obj.details || obj.detailshtml || obj.viewdetails || "").replace(/^["']|["']$/g, '').trim(),
       slotListUrl: (obj.slotlisturl || obj.slotlist || obj.slots || "").replace(/^["']|["']$/g, '').trim(),
       registerUrl: (obj.registerurl || obj.register || obj.registration || obj.bookslot || obj.bookyourslot || obj.registerhtml || "").replace(/^["']|["']$/g, '').trim(),
-      resultUrl: (obj.resulturl || obj.result || "").replace(/^["']|["']$/g, '').trim()
+      resultUrl: rawResult
     });
   }
 
