@@ -1566,7 +1566,11 @@ function render() {
   // 2. Upcoming Tournaments Section
   list.replaceChildren(...upcomingTournaments.map(t => buildCard(t, false, false)));
   empty.hidden = upcomingTournaments.length > 0;
-  setupHorizontalAutoScroll(list);
+
+  // ലൈവ് ടൂർണമെന്റ്സ് ഉള്ളപ്പോൾ അപ്കമിംഗ് ഓട്ടോ-സ്ക്രോൾ ഓഫ് ആക്കുന്നു (ബഗ് ഒഴിവാക്കാൻ)
+  if (liveTournaments.length === 0) {
+    setupHorizontalAutoScroll(list);
+  }
 
   // 3. Tournament History Section
   const previewPast = allPastTournaments.slice(0, 4);
