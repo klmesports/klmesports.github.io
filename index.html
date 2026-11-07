@@ -1368,18 +1368,24 @@ function getMatchTime(t) {
 }
 
 function endTime(t) { const e = getMatchTime(t); return e ? e : Infinity; }
-function isPast(t) { return endTime(t) <= Date.now(); }
 
-// Check if tournament is live
+// detailsUrl ഉണ്ടെങ്കിൽ ടൈം കഴിഞ്ഞാലും ഹിസ്റ്ററിയിലേക്ക് മാറില്ല (ലൈവ് ആയി നിൽക്കും)
+function isPast(t) {
+  if (t.detailsUrl) return false;
+  return endTime(t) <= Date.now();
+}
+
+// detailsUrl ഉണ്ടെങ്കിൽ നേരിട്ട് ലൈവ് ടൂർണമെന്റ് ആയി മാറും
 function checkIsLive(t) {
+  if (t.detailsUrl) return true;
   if (isPast(t)) return false;
   const mTime = getMatchTime(t);
   const closeTime = mTime ? mTime - (15 * 60 * 1000) : 0;
   const isBookingClosed = closeTime > 0 && Date.now() >= closeTime;
   const hasRegister = Boolean(t.registerUrl);
-  const hasDetails = Boolean(t.detailsUrl || t.slotListUrl);
+  const hasSlotList = Boolean(t.slotListUrl);
 
-  return isBookingClosed || (!hasRegister && hasDetails);
+  return isBookingClosed || (!hasRegister && hasSlotList);
 }
 
 function buildCard(t, past, isLive = false) {
@@ -1409,7 +1415,6 @@ function buildCard(t, past, isLive = false) {
   const hasYT = isYouTubeUrl(t.resultUrl);
 
   if (past) {
-    // കഴിഞ്ഞ ടൂർണമെന്റുകൾ: യൂട്യൂബ് ലിങ്ക് ആണെങ്കിൽ സ്ട്രീം കാണാൻ ഓപ്ഷൻ, ഡ്രൈവ്/ഇമേജ് ലിങ്ക് ആണെങ്കിൽ പഴയപോലെ പോപ്പ്-അപ്പ്
     if (t.resultUrl) {
       if (hasYT) {
         const ytBtn = el('a', 'btn-outline btn-yt-live', '▶ Watch Stream');
@@ -1439,7 +1444,7 @@ function buildCard(t, past, isLive = false) {
       actions.append(res, note);
     }
   } else if (isLive) {
-    // ലൈവ് ടൂർണമെന്റ്: Details URL ഉണ്ടെങ്കിൽ Live Score ബട്ടൺ
+    // detailsUrl അല്ലെങ്കിൽ slotListUrl വഴി Live Score ബോർഡിലേക്ക് പോകുന്നു
     if (t.detailsUrl || t.slotListUrl) {
       const liveBtn = el('a', 'btn-outline btn-live-score', '');
       const dot = el('span', 'live-dot');
@@ -1448,7 +1453,7 @@ function buildCard(t, past, isLive = false) {
       actions.append(liveBtn);
     }
 
-    // Result URL-ൽ YouTube ലിങ്ക് ഉണ്ടെങ്കിൽ മാത്രം "Watch Live on YouTube" ബട്ടൺ
+    // Result URL-ൽ YouTube ലിങ്ക് ഉണ്ടെങ്കിൽ Watch Live ബട്ടൺ
     if (hasYT) {
       const ytLiveBtn = el('a', 'btn btn-yt-live', '▶ Watch Live on YouTube');
       ytLiveBtn.href = t.resultUrl;
@@ -1457,7 +1462,6 @@ function buildCard(t, past, isLive = false) {
       actions.append(ytLiveBtn);
     }
 
-    // ഒരു ലിങ്കും ഇല്ലെങ്കിൽ മാത്രം Booking Closed നോട്ട്
     if (!t.detailsUrl && !t.slotListUrl && !hasYT) {
       const closedNote = el('p', 't-result', 'Match Live • Booking Closed');
       closedNote.style.borderColor = '#ef4444';
@@ -1465,13 +1469,12 @@ function buildCard(t, past, isLive = false) {
       actions.append(closedNote);
     }
   } else {
-    // അപ്കമിംഗ് ടൂർണമെന്റ്
+    // Upcoming Tournaments
     const hasDetails = Boolean(t.detailsUrl || t.slotListUrl);
     const hasRegister = Boolean(t.registerUrl);
     const hasResultImage = Boolean(t.resultUrl && !hasYT);
 
     if (hasResultImage && !hasDetails && !hasRegister) {
-      // Details URL ഇല്ലാതെ Result URL മാത്രം കൊടുത്താൽ പഴയപോലെ തന്നെ View Result ബട്ടൺ
       const res = el('button', 'btn-outline', 'View Result');
       res.type = 'button';
       res.addEventListener('click', (e) => {
@@ -1646,7 +1649,6 @@ function parseCSV(text) {
     }
 
     let rawResult = (obj.resulturl || obj.result || "").replace(/^["']|["']$/g, '').trim();
-    // ഗൂഗിൾ ഡ്രൈവ് ഇമേജ് ലിങ്ക് ആണെങ്കിൽ നേരിട്ട് കാണുന്ന തരം ലിങ്കാക്കി മാറ്റുന്നു
     if (rawResult.includes("drive.google.com")) {
       const resultDriveMatch = rawResult.match(/[-\w]{25,}/);
       if (resultDriveMatch) {
