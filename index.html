@@ -302,6 +302,49 @@ nav a:hover{color:var(--gold2)}
 section{padding:54px 0}
 h2{color:var(--gold2);font-size:1.1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
 
+/* Live Section Dedicated Styling */
+#live-tournaments {
+  background: radial-gradient(circle at 50% 0%, #2f130b 0%, #0c0906 72%);
+  border-bottom: 1px solid #4a2115;
+  padding: 42px 0;
+}
+.live-sec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.live-sec-head h2 {
+  margin-bottom: 0;
+  color: #ff5e5e;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.live-badge-pill {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #ff7878;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: .08em;
+}
+.live-dot-pulse {
+  width: 8px;
+  height: 8px;
+  background: #ff3333;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff3333;
+  animation: liveDotPulse 1.4s infinite;
+}
+
 /* Tournament Cards List */
 .t-list{
   list-style:none;
@@ -343,10 +386,22 @@ h2{color:var(--gold2);font-size:1.1rem;font-weight:800;letter-spacing:.08em;text
   box-shadow:0 8px 24px rgba(0,0,0,0.5);
 }
 
+/* Card in Live Section */
+.t-card.is-live {
+  border-color: #ef4444;
+  background: #17110c;
+  box-shadow: 0 8px 28px rgba(239, 68, 68, 0.2);
+}
+.t-card.is-live:hover {
+  border-color: #ff6666;
+  box-shadow: 0 10px 32px rgba(239, 68, 68, 0.35);
+}
+
 .t-thumb-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#000;border:1px solid #332617}
 .t-thumb{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s}
 .t-card:hover .t-thumb{transform:scale(1.05)}
 .t-badge{position:absolute;top:10px;left:10px;background:rgba(12,9,6,0.85);backdrop-filter:blur(4px);color:var(--gold2);font-size:0.75rem;font-weight:800;letter-spacing:0.08em;padding:4px 8px;border-radius:4px;border:1px solid var(--gold)}
+.t-badge.badge-live{border-color:#ef4444;color:#ff7878;background:rgba(30,10,10,0.9)}
 
 .t-name{margin-top:14px;font-size:1.1rem;font-weight:700;color:#fff}
 .t-tag{color:var(--green);font-size:.85rem;font-weight:700;margin-top:2px}
@@ -638,6 +693,51 @@ dialog#image-modal::backdrop{
   display:block;
 }
 
+/* Live Navigation & Live Score Button Styles */
+.live-nav-link {
+  color: #ff6b6b !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #ff3333;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 10px #ff3333;
+  animation: liveDotPulse 1.4s infinite;
+}
+@keyframes liveDotPulse {
+  0% { transform: scale(0.9); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.4; }
+  100% { transform: scale(0.9); opacity: 1; }
+}
+
+.btn-live-score {
+  border-color: #ef4444 !important;
+  color: #ff6b6b !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.12) !important;
+  transition: all .2s ease;
+}
+.btn-live-score:hover {
+  background: #ef4444 !important;
+  color: #fff !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  transform: translateY(-2px);
+}
+.btn-live-score .live-dot {
+  width: 7px;
+  height: 7px;
+}
+
 /* Responsive Styles */
 @media (max-width: 767px) {
   .carousel-slide { display: flex; }
@@ -688,7 +788,7 @@ dialog#image-modal::backdrop{
     padding: 8px 10px;
     font-size: 0.8rem;
   }
-  #history-list {
+  #history-list, #live-tournament-list {
     display: flex;
     overflow-x: auto;
   }
@@ -740,11 +840,11 @@ dialog#image-modal::backdrop{
     font-size: 1.05rem;
   }
   
-  #history-list {
+  #history-list, #live-tournament-list {
     display: flex;
     overflow-x: auto;
   }
-  #history-list li {
+  #history-list li, #live-tournament-list li {
     flex: 0 0 min(82%, 320px);
   }
 
@@ -768,6 +868,7 @@ dialog#image-modal::backdrop{
     </button>
 
     <nav id="nav-links">
+      <a href="#live-tournaments" class="live-nav-link" id="nav-live-link" hidden><span class="live-dot"></span> Live Tournament</a>
       <a href="#tournaments">Upcoming Tournaments</a>
       <a href="#history">Tournament History</a>
       <a href="#contact">Contact</a>
@@ -861,20 +962,34 @@ dialog#image-modal::backdrop{
     </div>
   </section>
 
-  <!-- Upcoming Tournaments Section -->
+  <!-- 1. Dedicated LIVE TOURNAMENTS SECTION (Separate Section) -->
+  <section id="live-tournaments" hidden>
+    <div class="wrap">
+      <div class="live-sec-head">
+        <h2>
+          <span class="live-dot-pulse"></span>
+          Live Tournament
+        </h2>
+        <span class="live-badge-pill">MATCH IN PROGRESS</span>
+      </div>
+      <ul id="live-tournament-list" class="t-list"></ul>
+    </div>
+  </section>
+
+  <!-- 2. UPCOMING TOURNAMENTS SECTION (Separate Section) -->
   <section id="tournaments">
     <div class="wrap">
       <h2>Upcoming Tournaments</h2>
       <div id="loading-state" class="loading-state">Syncing live tournament updates...</div>
       <ul id="tournament-list" class="t-list"></ul>
       <div class="empty" id="empty-state" hidden>
-        <strong>No tournaments scheduled right now</strong>
+        <strong>No upcoming tournaments scheduled right now</strong>
         <p>New tournaments will be listed here. Follow us on Instagram to hear first.</p>
       </div>
     </div>
   </section>
 
-  <!-- Tournament History Section -->
+  <!-- 3. TOURNAMENT HISTORY SECTION -->
   <section id="history">
     <div class="wrap">
       <h2>Tournament History</h2>
@@ -915,6 +1030,7 @@ dialog#image-modal::backdrop{
       </a>
     </div>
     <nav class="f-links" aria-label="Footer" style="margin-left:0; position:static; width:auto; background:transparent; border:none; display:flex; flex-direction:row; padding:0; box-shadow:none;">
+      <a href="#live-tournaments" id="footer-live-link" style="border:none;" hidden>Live Tournament</a>
       <a href="#tournaments" style="border:none;">Upcoming Tournaments</a>
       <a href="#history" style="border:none;">Tournament History</a>
       <a href="#contact" style="border:none;">Contact</a>
@@ -1124,6 +1240,11 @@ let allTournaments = [];
 let allPastTournaments = [];
 
 const list = document.getElementById('tournament-list');
+const liveList = document.getElementById('live-tournament-list');
+const liveSection = document.getElementById('live-tournaments');
+const navLiveLink = document.getElementById('nav-live-link');
+const footerLiveLink = document.getElementById('footer-live-link');
+
 const histList = document.getElementById('history-list');
 const empty = document.getElementById('empty-state');
 const histEmpty = document.getElementById('history-empty');
@@ -1163,35 +1284,34 @@ imgModal.addEventListener('close', () => { modalImg.src = ""; });
 imgModal.addEventListener('click', e => { if (e.target === imgModal) closePopup(); });
 document.getElementById('m-close').addEventListener('click', closePopup);
 
-// Auto-Scroll
-let upcomingAutoTimer;
-function setupUpcomingAutoScroll() {
-  if (upcomingAutoTimer) clearInterval(upcomingAutoTimer);
-  if (!list || list.children.length <= 1) return;
+// Auto-Scroll helper
+function setupHorizontalAutoScroll(elem) {
+  if (!elem || elem.children.length <= 1) return;
+  let autoTimer;
 
   function scrollNext() {
-    const cardWidth = list.firstElementChild ? list.firstElementChild.getBoundingClientRect().width + 20 : 320;
-    const maxScroll = list.scrollWidth - list.clientWidth;
-    if (list.scrollLeft >= maxScroll - 15) {
-      list.scrollTo({ left: 0, behavior: 'smooth' });
+    const cardWidth = elem.firstElementChild ? elem.firstElementChild.getBoundingClientRect().width + 20 : 320;
+    const maxScroll = elem.scrollWidth - elem.clientWidth;
+    if (elem.scrollLeft >= maxScroll - 15) {
+      elem.scrollTo({ left: 0, behavior: 'smooth' });
     } else {
-      list.scrollBy({ left: cardWidth, behavior: 'smooth' });
+      elem.scrollBy({ left: cardWidth, behavior: 'smooth' });
     }
   }
 
   function startScroll() {
     stopScroll();
-    upcomingAutoTimer = setInterval(scrollNext, 3800);
+    autoTimer = setInterval(scrollNext, 3800);
   }
 
   function stopScroll() {
-    clearInterval(upcomingAutoTimer);
+    clearInterval(autoTimer);
   }
 
-  list.addEventListener('mouseenter', stopScroll);
-  list.addEventListener('mouseleave', startScroll);
-  list.addEventListener('touchstart', stopScroll, { passive: true });
-  list.addEventListener('touchend', startScroll);
+  elem.addEventListener('mouseenter', stopScroll);
+  elem.addEventListener('mouseleave', startScroll);
+  elem.addEventListener('touchstart', stopScroll, { passive: true });
+  elem.addEventListener('touchend', startScroll);
 
   startScroll();
 }
@@ -1225,20 +1345,39 @@ function getMatchTime(t) {
 function endTime(t) { const e = getMatchTime(t); return e ? e : Infinity; }
 function isPast(t) { return endTime(t) <= Date.now(); }
 
-function buildCard(t, past) {
+// തന്നിട്ടുള്ള ടൂർണമെന്റ് നിലവിൽ ലൈവ് ആണോ എന്ന് പരിശോധിക്കുന്നു
+function checkIsLive(t) {
+  if (isPast(t)) return false;
+  const mTime = getMatchTime(t);
+  const closeTime = mTime ? mTime - (15 * 60 * 1000) : 0;
+  const isBookingClosed = closeTime > 0 && Date.now() >= closeTime;
+  const hasRegister = Boolean(t.registerUrl);
+  const hasDetails = Boolean(t.detailsUrl || t.slotListUrl);
+
+  // ബുക്കിംഗ് ക്ലോസ് ആവുകയോ, അല്ലെങ്കിൽ ഷീറ്റിൽ രജിസ്ട്രേഷൻ ലിങ്ക് നൽകാതെ ഡീറ്റെയിൽസ് യുആർഎൽ മാത്രം നൽകുകയോ ചെയ്യുമ്പോൾ ലൈവ് ആയി കണക്കാക്കും
+  return isBookingClosed || (!hasRegister && hasDetails);
+}
+
+function buildCard(t, past, isLive = false) {
   const li = el('li');
-  const card = el('article', 't-card' + (past ? ' past' : ''));
+  const cardClass = 't-card' + (past ? ' past' : '') + (isLive ? ' is-live' : '');
+  const card = el('article', cardClass);
 
   const thumbWrap = el('div', 't-thumb-wrap');
   const img = el('img', 't-thumb');
   img.src = t.image || 'logo.jpg';
   img.alt = (t.game || '') + ' ' + (t.title || '');
   thumbWrap.append(img);
-  if (t.mapBadge) thumbWrap.append(el('span', 't-badge', t.mapBadge));
+
+  if (isLive) {
+    thumbWrap.append(el('span', 't-badge badge-live', '🔴 LIVE NOW'));
+  } else if (t.mapBadge) {
+    thumbWrap.append(el('span', 't-badge', t.mapBadge));
+  }
 
   const dates = el('div', 't-dates');
   dates.append(
-    el('small', '', past ? 'Held on' : 'Date and time'), 
+    el('small', '', past ? 'Held on' : (isLive ? 'Live Match Time' : 'Date and time')), 
     el('span', '', (t.date || '') + (t.time ? ' · ' + t.time : ''))
   );
 
@@ -1264,7 +1403,20 @@ function buildCard(t, past) {
       });
       actions.append(res, note);
     }
+  } else if (isLive) {
+    // ലൈവ് ടൂർണമെന്റ് കാർഡിലെ ബട്ടണുകൾ
+    const liveBtn = el('a', 'btn-outline btn-live-score', '');
+    const dot = el('span', 'live-dot');
+    liveBtn.append(dot, document.createTextNode(' View Live Score'));
+    liveBtn.href = t.detailsUrl || t.slotListUrl || '#';
+    actions.append(liveBtn);
+
+    const closedNote = el('p', 't-result', 'Match Live • Booking Closed');
+    closedNote.style.borderColor = '#ef4444';
+    closedNote.style.color = '#ff6b6b';
+    actions.append(closedNote);
   } else {
+    // അപ്കമിംഗ് ടൂർണമെന്റ് കാർഡിലെ ബട്ടണുകൾ
     const hasDetails = Boolean(t.detailsUrl || t.slotListUrl);
     const hasRegister = Boolean(t.registerUrl);
 
@@ -1280,22 +1432,11 @@ function buildCard(t, past) {
         actions.append(view);
       }
       if (hasRegister) {
-        const mTime = getMatchTime(t);
-        const closeTime = mTime ? mTime - (15 * 60 * 1000) : 0;
-        const isBookingClosed = closeTime > 0 && Date.now() >= closeTime;
-
-        if (isBookingClosed) {
-          const closedNote = el('p', 't-result', 'Booking Closed');
-          closedNote.style.borderColor = 'var(--gold)';
-          closedNote.style.color = 'var(--gold2)';
-          actions.append(closedNote);
-        } else {
-          const reg = el('a', 'btn', 'Book Your Slot');
-          reg.href = t.registerUrl;
-          reg.rel = 'noopener';
-          reg.append(el('small', '', t.entry || 'Tournament Entry'));
-          actions.append(reg);
-        }
+        const reg = el('a', 'btn', 'Book Your Slot');
+        reg.href = t.registerUrl;
+        reg.rel = 'noopener';
+        reg.append(el('small', '', t.entry || 'Tournament Entry'));
+        actions.append(reg);
       }
     }
   }
@@ -1313,7 +1454,7 @@ function renderHistoryModal(filterQuery = '') {
     return searchTarget.includes(query);
   });
 
-  modalHistoryGrid.replaceChildren(...filtered.map(t => buildCard(t, true)));
+  modalHistoryGrid.replaceChildren(...filtered.map(t => buildCard(t, true, false)));
   modalHistoryEmpty.hidden = filtered.length > 0;
 }
 
@@ -1337,15 +1478,35 @@ historySearchInput.addEventListener('input', (e) => {
 
 let timer;
 function render() {
-  const upcoming = allTournaments.filter(t => !isPast(t)).sort((a, b) => endTime(a) - endTime(b));
+  const nonPast = allTournaments.filter(t => !isPast(t)).sort((a, b) => endTime(a) - endTime(b));
   allPastTournaments = allTournaments.filter(isPast).sort((a, b) => endTime(b) - endTime(a));
-  
-  list.replaceChildren(...upcoming.map(t => buildCard(t, false)));
-  
+
+  // ലൈവ് ടൂർണമെന്റുകളും അപ്കമിംഗ് ടൂർണമെന്റുകളും രണ്ട് പ്രത്യേക ഗ്രൂപ്പുകളാക്കുന്നു
+  const liveTournaments = nonPast.filter(t => checkIsLive(t));
+  const upcomingTournaments = nonPast.filter(t => !checkIsLive(t));
+
+  // 1. Live Tournaments സെക്ഷൻ റെൻഡർ ചെയ്യൽ
+  if (liveTournaments.length > 0) {
+    liveSection.hidden = false;
+    navLiveLink.hidden = false;
+    footerLiveLink.hidden = false;
+    liveList.replaceChildren(...liveTournaments.map(t => buildCard(t, false, true)));
+    setupHorizontalAutoScroll(liveList);
+  } else {
+    liveSection.hidden = true;
+    navLiveLink.hidden = true;
+    footerLiveLink.hidden = true;
+    liveList.innerHTML = '';
+  }
+
+  // 2. Upcoming Tournaments സെക്ഷൻ റെൻഡർ ചെയ്യൽ
+  list.replaceChildren(...upcomingTournaments.map(t => buildCard(t, false, false)));
+  empty.hidden = upcomingTournaments.length > 0;
+  setupHorizontalAutoScroll(list);
+
+  // 3. Tournament History സെക്ഷൻ റെൻഡർ ചെയ്യൽ
   const previewPast = allPastTournaments.slice(0, 4);
-  histList.replaceChildren(...previewPast.map(t => buildCard(t, true)));
-  
-  empty.hidden = upcoming.length > 0;
+  histList.replaceChildren(...previewPast.map(t => buildCard(t, true, false)));
   histEmpty.hidden = allPastTournaments.length > 0;
 
   if (allPastTournaments.length > 0) {
@@ -1355,15 +1516,13 @@ function render() {
     historyControls.hidden = true;
   }
 
-  setupUpcomingAutoScroll();
-
   clearTimeout(timer);
-  if (upcoming.length && isFinite(endTime(upcoming[0]))) {
-    timer = setTimeout(render, Math.min(endTime(upcoming[0]) - Date.now() + 1000, 2147483647));
+  if (nonPast.length && isFinite(endTime(nonPast[0]))) {
+    timer = setTimeout(render, Math.min(endTime(nonPast[0]) - Date.now() + 1000, 2147483647));
   }
 }
 
-// Robust CSV Parsing: Exactly from original working code
+// Robust CSV Parsing
 function parseCSV(text) {
   const rows = [];
   let row = [];
@@ -1421,7 +1580,6 @@ function parseCSV(text) {
     let rawImg = obj.image || obj.thumbnail || obj.imageurl || "1000193608.webp";
     rawImg = rawImg.replace(/^["']|["']$/g, '').trim();
 
-    // Auto convert Google Drive links directly to fast loading direct images
     if (rawImg.includes("drive.google.com")) {
       const driveMatch = rawImg.match(/[-\w]{25,}/);
       if (driveMatch) {
