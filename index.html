@@ -1369,19 +1369,20 @@ function getMatchTime(t) {
 
 function endTime(t) { const e = getMatchTime(t); return e ? e : Infinity; }
 
-// ടൂർണമെന്റ് ഹിസ്റ്ററിയിലേക്ക് പോകാനുള്ള കൃത്യമായ നിബന്ധന:
-// detailsUrl-ഉം registerUrl-ഉം ബ്ലാങ്ക് ആവുകയും, സമയം കഴിയുകയും ചെയ്താൽ മാത്രമേ ഹിസ്റ്ററിയിലേക്ക് പോകൂ!
-// detailsUrl ഉള്ളിടത്തോളം കാലം അത് ഒരിക്കലും ഹിസ്റ്ററിയിലേക്ക് പോകില്ല.
-function isPast(t) {
-  if (t.detailsUrl || t.registerUrl) return false;
-  return endTime(t) <= Date.now();
+// ലൈവ് ആകാനുള്ള നിബന്ധന:
+// registerUrl ഇല്ലാതിരിക്കുകയും detailsUrl ഉണ്ടാവുകയും ചെയ്താൽ സമയം കഴിഞ്ഞാലും Live ആകും!
+function checkIsLive(t) {
+  return !t.registerUrl && Boolean(t.detailsUrl);
 }
 
-// ലൈവ് ആകാനുള്ള നിബന്ധന:
-// registerUrl ബ്ലാങ്ക് ആയിരിക്കുകയും detailsUrl ഉണ്ടാവുകയും ചെയ്താൽ സമയം കഴിഞ്ഞാലും Live ആകും!
-function checkIsLive(t) {
-  if (t.registerUrl) return false; // registerUrl ഉണ്ടെങ്കിൽ Live ആവില്ല (Upcoming-ൽ നിൽക്കും)
-  return Boolean(t.detailsUrl);   // registerUrl ബ്ലാങ്ക് ആവുകയും detailsUrl ഉണ്ടാവുകയും ചെയ്താൽ Live!
+// ടൂർണമെന്റ് ഹിസ്റ്ററിയിലേക്ക് പോകാനുള്ള കൃത്യമായ നിബന്ധന:
+// ലൈവ് ആണെങ്കിൽ (detailsUrl ഉണ്ടെങ്കിൽ) ഒരിക്കലും ഹിസ്റ്ററിയിലേക്ക് പോകില്ല.
+// registerUrl ഉള്ളതൊന്നും ഹിസ്റ്ററിയിലേക്ക് പോകില്ല (upcoming-ൽ നിൽക്കും).
+// സമയം കഴിയുകയും, ലൈവ് അല്ലാതിരിക്കുകയും ചെയ്താൽ മാത്രമേ ഹിസ്റ്ററിയിലേക്ക് പോകൂ!
+function isPast(t) {
+  if (checkIsLive(t)) return false;
+  if (t.registerUrl) return false;
+  return endTime(t) <= Date.now();
 }
 
 function buildCard(t, past, isLive = false) {
@@ -1607,8 +1608,10 @@ function parseCSV(text) {
     } else if (c === ',' && !inQuotes) {
       row.push(curVal.trim());
       curVal = '';
-    } else if ((c === '\r' || c === '\n') && !inQuotes) {
-      if (c === '\r' && next === '\n') i++;
+    } else if ((c === '' || c === '
+') && !inQuotes) {
+      if (c === '' && next === '
+') i++;
       row.push(curVal.trim());
       if (row.length > 0 && row.some(cell => cell !== '')) {
         rows.push(row);
