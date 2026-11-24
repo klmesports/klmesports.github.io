@@ -193,6 +193,30 @@ html, body {
 
   let isLoaded = false;
   let isPopStateNavigation = false;
+  let unlockInterval = null;
+
+  function sendUnlockKey() {
+    if (frame.contentWindow) {
+      frame.contentWindow.postMessage({
+        type: "KLM_UNLOCK",
+        key: secretPasscode
+      }, baseOrigin);
+    }
+  }
+
+  function startUnlockBurst() {
+    clearInterval(unlockInterval);
+    let attempts = 0;
+    sendUnlockKey();
+    unlockInterval = setInterval(() => {
+      if (attempts < 20) {
+        sendUnlockKey();
+        attempts++;
+      } else {
+        clearInterval(unlockInterval);
+      }
+    }, 150);
+  }
 
   function showError() {
     if (isLoaded) return;
@@ -208,15 +232,7 @@ html, body {
   frame.addEventListener('load', () => {
     isLoaded = true;
     clearTimeout(loadTimeout);
-    
-    // പ്രൈവറ്റ് പേജ് അൺലോക്ക് ചെയ്യാനുള്ള രഹസ്യ കോഡ് അയക്കുന്നു
-    if (frame.contentWindow) {
-      frame.contentWindow.postMessage({
-        type: "KLM_UNLOCK",
-        key: secretPasscode
-      }, baseOrigin);
-    }
-
+    startUnlockBurst();
     frame.classList.add('loaded');
     statusScreen.classList.add('hidden');
   });
@@ -228,9 +244,14 @@ html, body {
 
   window.addEventListener('message', (event) => {
     if (event.origin !== baseOrigin) return;
-    if (event.data && event.data.type === 'KLM_NAVIGATE') {
+    if (!event.data || typeof event.data !== 'object') return;
+
+    if (event.data.type === 'KLM_READY') {
+      sendUnlockKey();
+    } else if (event.data.type === 'KLM_NAVIGATE') {
+      sendUnlockKey();
       if (!isPopStateNavigation) {
-        history.pushState({ path: event.data.path }, '', window.location.pathname);
+        history.pushState({ path: event.data.path || event.data.url }, '', window.location.pathname);
       }
       isPopStateNavigation = false;
     }
@@ -240,7 +261,7 @@ html, body {
     if (frame.contentWindow) {
       isPopStateNavigation = true;
       if (event.state && event.state.path) {
-        frame.contentWindow.postMessage({ type: 'KLM_GO_TO', path: event.state.path }, baseOrigin);
+        frame.contentWindow.postMessage({ type: 'KLM_GO_TO', path: event.state.path, url: event.state.path }, baseOrigin);
       } else {
         frame.contentWindow.postMessage({ type: 'KLM_GO_BACK' }, baseOrigin);
       }
