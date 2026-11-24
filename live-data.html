@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KLM ESPORTS - LIVE LEADERBOARD HUD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@600;700&family=Rajdhani:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: rgba(14, 11, 7, 0.96);
+      --row-bg-1: rgba(20, 16, 12, 0.90);
+      --row-bg-2: rgba(13, 10, 7, 0.90);
+      --gold: #f5a623;
+      --gold-light: #ffd27a;
+      --border-gold: rgba(245, 166, 35, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: transparent;
+      font-family: 'Rajdhani', sans-serif;
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    /* പ്രധാന കണ്ടെയ്നർ: കോളം വിഡ്ത്തുകൾ കൃത്യമായി നിലനിൽക്കാൻ 480px */
+    .hud-container {
+      width: 480px;
+      background: var(--bg-dark);
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95), 0 0 15px rgba(245, 166, 35, 0.15);
+      border: 1px solid var(--border-gold);
+    }
+
+    /* ഗോൾഡൻ ഗ്രേഡിയന്റ് ഹെഡർ */
+    .hud-header {
+      display: grid;
+      grid-template-columns: 32px 1fr 40px 42px 42px 50px 72px;
+      align-items: center;
+      background: linear-gradient(135deg, #f5a623, #d48812);
+      color: #120900;
+      font-weight: 800;
+      font-size: 13px;
+      height: 32px;
+      padding: 0 8px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      clip-path: polygon(0 0, 100% 0, 100% 75%, 97% 100%, 0 100%);
+    }
+
+    .hud-header div {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .hud-header .col-team-head {
+      text-align: left;
+      padding-left: 28px;
+    }
+
+    .hud-body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hud-row {
+      display: grid;
+      grid-template-columns: 32px 1fr 40px 42px 42px 50px 72px;
+      align-items: center;
+      height: 38px;
+      padding: 0 8px;
+      border-bottom: 1px solid rgba(245, 166, 35, 0.08);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      background: var(--row-bg-1);
+      transition: opacity 0.3s ease, filter 0.3s ease;
+    }
+
+    .hud-row:nth-child(even) {
+      background: var(--row-bg-2);
+    }
+
+    /* ഒന്നാം സ്ഥാനം - ഗോൾഡൻ ഹൈലൈറ്റ് */
+    .hud-row.rank-first {
+      background: rgba(245, 166, 35, 0.22) !important;
+      border-left: 3px solid #f5a623;
+    }
+
+    /* ടീം വൈപ്പ് ആയാൽ റോ പൂർണ്ണമായും മങ്ങിപ്പോകുന്നു */
+    .hud-row.team-wiped {
+      opacity: 0.26 !important;
+      filter: grayscale(100%) contrast(80%);
+      background: rgba(10, 8, 6, 0.7) !important;
+      border-left: none !important;
+    }
+
+    .col-rank {
+      text-align: center;
+      font-family: 'Teko', sans-serif;
+      font-size: 21px;
+      color: #cbd5e1;
+      line-height: 1;
+    }
+
+    .col-team {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .team-logo {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      max-width: 22px;
+      object-fit: contain;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      display: block;
+    }
+
+    .team-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      min-width: 0;
+    }
+
+    /* CD കോളം */
+    .col-cd {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Teko', sans-serif;
+      font-size: 19px;
+      color: #ffd700;
+      line-height: 1;
+    }
+
+    .cd-zero {
+      color: #55504a;
+      font-size: 16px;
+    }
+
+    /* Placement Points കോളം */
+    .col-place {
+      text-align: center;
+      font-family: 'Teko', sans-serif;
+      font-size: 21px;
+      color: #e2e8f0;
+      line-height: 1;
+    }
+
+    /* Finishes കോളം */
+    .col-fin {
+      text-align: center;
+      font-family: 'Teko', sans-serif;
+      font-size: 21px;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    /* Total Points കോളം */
+    .col-pts {
+      text-align: center;
+      font-family: 'Teko', sans-serif;
+      font-size: 22px;
+      color: var(--gold-light);
+      font-weight: 700;
+      line-height: 1;
+      text-shadow: 0 0 8px rgba(245, 166, 35, 0.3);
+    }
+
+    /* 4 പ്ലെയർ സ്റ്റാറ്റസ് ലൈനുകൾ */
+    .col-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3.5px;
+      width: 100%;
+    }
+
+    .player-slot {
+      width: 6px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* Alive - വെള്ള ബാർ */
+    .player-slot.alive .bar-line {
+      width: 5px;
+      height: 18px;
+      background: #ffffff;
+      border-radius: 1px;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
+    }
+
+    /* Knocked - ചുവപ്പ് ബാർ & പൾസ് ബ്ലിങ്കിങ് */
+    .player-slot.knocked .bar-line {
+      width: 5px;
+      height: 18px;
+      background: #ff2525;
+      border-radius: 1px;
+      box-shadow: 0 0 8px #ff0000;
+      animation: knockPulse 0.75s infinite alternate ease-in-out;
+    }
+
+    /* BGMI Heart Recall Icon */
+    .player-slot.recall-available .recall-heart-icon {
+      width: 13px;
+      height: 13px;
+      filter: drop-shadow(0 0 5px #00ff78);
+      animation: recallGlow 1.2s infinite alternate ease-in-out;
+    }
+
+    /* Dead Slot - ബ്ലാങ്ക് ബോക്സ് */
+    .player-slot.dead .bar-line {
+      width: 5px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 1px;
+    }
+
+    @keyframes knockPulse {
+      0% { opacity: 1; transform: scaleY(1); }
+      100% { opacity: 0.25; transform: scaleY(0.85); }
+    }
+
+    @keyframes recallGlow {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      100% { transform: scale(1.15); opacity: 1; }
+    }
+
+    /* താഴത്തെ ലെജൻഡ് ഫൂട്ടർ */
+    .hud-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 14px;
+      background: rgba(9, 7, 4, 0.98);
+      font-size: 11px;
+      font-weight: 800;
+      color: #b9a98f;
+      letter-spacing: 0.7px;
+      border-top: 1px solid rgba(245, 166, 35, 0.15);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hud-container">
+    <div class="hud-header">
+      <div>#</div>
+      <div class="col-team-head">TEAM</div>
+      <div>CD</div>
+      <div>PLC</div>
+      <div>FIN</div>
+      <div>TOTAL</div>
+      <div>STATUS</div>
+    </div>
+
+    <div class="hud-body" id="hud-rows">
+      <div style="padding: 15px; text-align: center; font-size: 14px; color: var(--gold);">
+        Loading Live Standings...
+      </div>
+    </div>
+
+    <div class="hud-footer">
+      <div class="legend-item"><span class="dot" style="background:#fff;"></span> ALIVE</div>
+      <div class="legend-item"><span class="dot" style="background:#ff2525;"></span> KNOCK</div>
+      <div class="legend-item">
+        <svg style="width:11px;height:11px;fill:#00ff78;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        RECALL
+      </div>
+      <div class="legend-item"><span class="dot" style="border:1px solid #b9a98f;"></span> ELIM</div>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyftk6SwirNFe6D11wifUQEf2rQLybnngEggi0_y5lXOMLWtqLNX-Oho590aFfxSlKUEQ/exec";
+
+    const DEFAULT_LOGO = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23f5a623'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>";
+
+    const BGMI_RECALL_HEART_SVG = `
+      <svg class="recall-heart-icon" viewBox="0 0 24 24">
+        <path fill="#00ff78" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        <path fill="#0e0b07" d="M12 6.8c-2.4 0-4.3 1.9-4.3 4.3h1.4c0-1.6 1.3-2.9 2.9-2.9 1.6 0 2.9 1.3 2.9 2.9s-1.3 2.9-2.9 2.9v1.4c2.4 0 4.3-1.9 4.3-4.3s-1.9-4.3-4.3-4.3z"/>
+        <polygon fill="#0e0b07" points="11,14 13.5,14 12,16.5"/>
+      </svg>
+    `;
+
+    function escapeText(str) {
+      if (!str) return "";
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function createStatusBars(alive = 4, knocked = 0, recallAvailable = false) {
+      alive = Math.max(0, parseInt(alive) || 0);
+      knocked = Math.max(0, parseInt(knocked) || 0);
+
+      let slotsHtml = '';
+      for (let i = 0; i < 4; i++) {
+        if (knocked > 0) {
+          slotsHtml += '<div class="player-slot knocked"><div class="bar-line"></div></div>';
+          knocked--;
+        } else if (alive > 0) {
+          slotsHtml += '<div class="player-slot alive"><div class="bar-line"></div></div>';
+          alive--;
+        } else {
+          if (recallAvailable) {
+            slotsHtml += `<div class="player-slot recall-available" title="Recall Available">${BGMI_RECALL_HEART_SVG}</div>`;
+          } else {
+            slotsHtml += '<div class="player-slot dead"><div class="bar-line"></div></div>';
+          }
+        }
+      }
+      return slotsHtml;
+    }
+
+    async function updateHUD() {
+      try {
+        const res = await fetch(`${SCRIPT_URL}?nocache=${Date.now()}`);
+        const teams = await res.json();
+        const container = document.getElementById('hud-rows');
+
+        if (!Array.isArray(teams)) return;
+
+        let fragment = '';
+        teams.forEach((t, i) => {
+          const rank = i + 1;
+          const isFirst = rank === 1 ? 'rank-first' : '';
+          
+          const safeTeamName = escapeText(t.team || `Team ${rank}`);
+          const safeLogo = t.logo ? t.logo.replace(/"/g, '&quot;') : DEFAULT_LOGO;
+          
+          const cdVal = Number(t.cd) || 0;
+          const placePts = Number(t.placePts) || 0;
+          const finishes = Number(t.finishes) || 0;
+          const totalPts = Number(t.totalPts) || 0;
+
+          const aliveCount = t.alive !== undefined ? Number(t.alive) : 4;
+          const knockCount = t.knocked !== undefined ? Number(t.knocked) : 0;
+          const recallAvailable = Boolean(t.recallAvailable);
+
+          const isWiped = (aliveCount <= 0 && knockCount <= 0) ? 'team-wiped' : '';
+
+          let cdDisplay = cdVal > 0 ? `${cdVal}🍗` : `<span class="cd-zero">-</span>`;
+          const statusHtml = createStatusBars(aliveCount, knockCount, recallAvailable);
+
+          fragment += `
+            <div class="hud-row ${isFirst} ${isWiped}">
+              <div class="col-rank">${rank}</div>
+              <div class="col-team">
+                <img class="team-logo" src="${safeLogo}" alt="" onerror="this.onerror=null;this.src='${DEFAULT_LOGO}';">
+                <span class="team-name" title="${safeTeamName}">${safeTeamName}</span>
+              </div>
+              <div class="col-cd">${cdDisplay}</div>
+              <div class="col-place">${placePts}</div>
+              <div class="col-fin">${finishes}</div>
+              <div class="col-pts">${totalPts}</div>
+              <div class="col-status">${statusHtml}</div>
+            </div>
+          `;
+        });
+
+        if (fragment) {
+          container.innerHTML = fragment;
+        }
+      } catch (err) {
+        console.error("HUD Sync Error:", err);
+      }
+    }
+
+    updateHUD();
+    setInterval(updateHUD, 2000);
+  </script>
+</body>
+</html>

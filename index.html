@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KLM Esports</title>
+<meta name="description" content="KLM Esports tournaments. Follow @kl_masters_esports on Instagram.">
+<link rel="icon" href="logo.jpg">
+<style>
+:root {
+  --bg: #0c0906;
+  --panel: #17120c;
+  --panel2: #221b12;
+  --line: #2c2217;
+  --gold: #e0a030;
+  --gold2: #ffd27a;
+  --text: #ffffff;
+  --muted: #a39580;
+  --danger: #ef4444;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  overflow: hidden;
+}
+
+#app-frame {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#app-frame.loaded {
+  opacity: 1;
+}
+
+.status-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, #29180b 0%, #0c0906 80%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  text-align: center;
+  z-index: 10;
+  transition: opacity 0.4s ease, visibility 0.4s;
+}
+.status-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: .04em;
+  margin-bottom: 28px;
+}
+.brand-badge span {
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  color: #111;
+  padding: 2px 8px;
+  font-size: .85rem;
+  letter-spacing: .12em;
+  border-radius: 3px;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(224, 160, 48, 0.2);
+  border-top-color: var(--gold2);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading-text {
+  color: var(--muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+}
+
+.error-card {
+  display: none;
+  max-width: 420px;
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+}
+.error-card.active {
+  display: block;
+}
+.error-icon {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 16px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ff6b6b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.error-card h1 {
+  color: var(--gold2);
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.error-card p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+.btn-retry {
+  display: inline-block;
+  width: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+  color: #1a1004;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+.btn-retry:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+.contact-fallback {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.contact-fallback a {
+  color: var(--gold2);
+  text-decoration: none;
+  font-weight: 700;
+}
+</style>
+</head>
+<body>
+
+<div class="status-screen" id="status-screen">
+  <div class="brand-badge">KLM <span>ESPORTS</span></div>
+
+  <div id="loader-box">
+    <div class="spinner" style="margin: 0 auto 16px;"></div>
+    <p class="loading-text">Connecting to KLM Arena...</p>
+  </div>
+
+  <div class="error-card" id="error-box">
+    <div class="error-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <h1>Something Went Wrong</h1>
+    <p>We are having trouble connecting to the tournament server right now. Please check your internet connection or try again shortly.</p>
+    <button type="button" class="btn-retry" onclick="location.reload()">Try Again</button>
+    <div class="contact-fallback">
+      Need urgent help? Contact us on <a href="https://wa.me/918089601562" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<iframe id="app-frame" title="KLM Esports Arena" allowfullscreen></iframe>
+
+<script>
+(function() {
+  const _0x1a = "aHR0cHM6Ly9hZGFyc2gtdWRheWFrdW1hci1sLmtsbWVzcG9ydHN3ZWIud29ya2Vycy5kZXY=";
+  const baseOrigin = atob(_0x1a);
+  const frame = document.getElementById('app-frame');
+  const statusScreen = document.getElementById('status-screen');
+  const loaderBox = document.getElementById('loader-box');
+  const errorBox = document.getElementById('error-box');
+
+  let isLoaded = false;
+  let isPopStateNavigation = false;
+
+  function showError() {
+    if (isLoaded) return;
+    loaderBox.style.display = 'none';
+    errorBox.classList.add('active');
+    frame.style.display = 'none';
+  }
+
+  const loadTimeout = setTimeout(() => {
+    if (!isLoaded) showError();
+  }, 12000);
+
+  frame.addEventListener('load', () => {
+    isLoaded = true;
+    clearTimeout(loadTimeout);
+    frame.classList.add('loaded');
+    statusScreen.classList.add('hidden');
+  });
+
+  frame.addEventListener('error', () => {
+    clearTimeout(loadTimeout);
+    showError();
+  });
+
+  window.addEventListener('message', (event) => {
+    if (event.origin !== baseOrigin) return;
+    if (event.data && event.data.type === 'KLM_NAVIGATE') {
+      if (!isPopStateNavigation) {
+        history.pushState({ path: event.data.path }, '', window.location.pathname);
+      }
+      isPopStateNavigation = false;
+    }
+  });
+
+  window.addEventListener('popstate', (event) => {
+    if (frame.contentWindow) {
+      isPopStateNavigation = true;
+      if (event.state && event.state.path) {
+        frame.contentWindow.postMessage({ type: 'KLM_GO_TO', path: event.state.path }, baseOrigin);
+      } else {
+        frame.contentWindow.postMessage({ type: 'KLM_GO_BACK' }, baseOrigin);
+      }
+    }
+  });
+
+  if (!navigator.onLine) {
+    clearTimeout(loadTimeout);
+    showError();
+  } else {
+    history.replaceState({ path: '/' }, '', window.location.pathname);
+    frame.src = baseOrigin;
+  }
+})();
+</script>
+</body>
+</html>
