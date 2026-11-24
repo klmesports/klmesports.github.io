@@ -16,7 +16,6 @@
   --gold2: #ffd27a;
   --text: #ffffff;
   --muted: #a39580;
-  --danger: #ef4444;
   color-scheme: dark;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,7 +27,6 @@ html, body {
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
   overflow: hidden;
 }
-
 #app-frame {
   position: fixed;
   inset: 0;
@@ -42,7 +40,6 @@ html, body {
 #app-frame.loaded {
   opacity: 1;
 }
-
 .status-screen {
   position: fixed;
   inset: 0;
@@ -61,7 +58,6 @@ html, body {
   visibility: hidden;
   pointer-events: none;
 }
-
 .brand-badge {
   display: inline-flex;
   align-items: center;
@@ -79,7 +75,6 @@ html, body {
   letter-spacing: .12em;
   border-radius: 3px;
 }
-
 .spinner {
   width: 44px;
   height: 44px;
@@ -87,7 +82,7 @@ html, body {
   border-top-color: var(--gold2);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
-  margin-bottom: 16px;
+  margin: 0 auto 16px;
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -95,9 +90,7 @@ html, body {
 .loading-text {
   color: var(--muted);
   font-size: 0.95rem;
-  letter-spacing: 0.03em;
 }
-
 .error-card {
   display: none;
   max-width: 420px;
@@ -146,11 +139,6 @@ html, body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s, filter 0.2s;
-}
-.btn-retry:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
 }
 .contact-fallback {
   margin-top: 18px;
@@ -170,12 +158,10 @@ html, body {
 
 <div class="status-screen" id="status-screen">
   <div class="brand-badge">KLM <span>ESPORTS</span></div>
-
   <div id="loader-box">
-    <div class="spinner" style="margin: 0 auto 16px;"></div>
+    <div class="spinner"></div>
     <p class="loading-text">Connecting to KLM Arena...</p>
   </div>
-
   <div class="error-card" id="error-box">
     <div class="error-icon">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -199,6 +185,7 @@ html, body {
 (function() {
   const _0x1a = "aHR0cHM6Ly9hZGFyc2gtdWRheWFrdW1hci1sLmtsbWVzcG9ydHN3ZWIud29ya2Vycy5kZXY=";
   const baseOrigin = atob(_0x1a);
+  const secretPasscode = "ADARSH_BRO_GAMING_SINCE_2025";
   const frame = document.getElementById('app-frame');
   const statusScreen = document.getElementById('status-screen');
   const loaderBox = document.getElementById('loader-box');
@@ -221,6 +208,15 @@ html, body {
   frame.addEventListener('load', () => {
     isLoaded = true;
     clearTimeout(loadTimeout);
+    
+    // പ്രൈവറ്റ് പേജ് അൺലോക്ക് ചെയ്യാനുള്ള രഹസ്യ കോഡ് അയക്കുന്നു
+    if (frame.contentWindow) {
+      frame.contentWindow.postMessage({
+        type: "KLM_UNLOCK",
+        key: secretPasscode
+      }, baseOrigin);
+    }
+
     frame.classList.add('loaded');
     statusScreen.classList.add('hidden');
   });
